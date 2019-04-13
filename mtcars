@@ -1,0 +1,272 @@
+# R Primer ####
+
+# Introduction to RStudio ####
+# read the help for the mtcars dataset
+?mtcars
+
+# look at the data frame
+View(mtcars)
+
+# Look at the size of the data frame
+dim(mtcars)
+n <- 1:dim(mtcars)[1]
+mtcars1 <- cbind(n,mtcars)
+View(mtcars1)
+dim(mtcars1)
+
+# Descriptive Statistics in R ####
+# look at the data types and some of the data
+str(mtcars1)
+
+# summary of the data frame, review meanings of descriptive stats
+summary(mtcars1)
+
+# <- is the assignment operator in R, we'll reassign it to another
+# data frame so that we can modify it
+my_mtcars <- mtcars1
+
+# $ after a data frame allows you to specify a certain column 
+# within the data frame, as.factor converts the data to categorical
+my_mtcars$am <- as.factor(my_mtcars$am)
+# again for cylinders
+my_mtcars$cyl <- as.factor(my_mtcars$cyl)
+
+# note the changes to the summary, now categories are shown with 
+# counts instead of mean/median/Q1/etc.
+summary(my_mtcars)
+
+# table also works well for counts
+table(my_mtcars$cyl)
+
+# table works for counts in two directions
+table(my_mtcars$cyl, my_mtcars$am)
+
+# The maximum and minimum mpg in the list
+max(my_mtcars$mpg)
+min(my_mtcars$mpg)
+
+which(my_mtcars$mpg==max(my_mtcars$mpg))
+which(my_mtcars$mpg==min(my_mtcars$mpg))
+
+rownames(my_mtcars)
+rownames(my_mtcars[which(my_mtcars$mpg==max(my_mtcars$mpg)),])
+rownames(my_mtcars[which(my_mtcars$mpg==min(my_mtcars$mpg)),])
+
+# tapply is helpful for making a quick "PivotTable"
+tapply(my_mtcars$hp, my_mtcars$cyl, mean)
+tapply(my_mtcars$mpg, my_mtcars$am, mean)
+
+# any function can be applied by category
+tapply(my_mtcars$hp, my_mtcars$cyl, median)
+tapply(my_mtcars$mpg, my_mtcars$am, median)
+
+# Data Visualization in R ####
+# table makes it possible to make a simple bar plot with the base package
+barplot(table(my_mtcars$cyl))
+
+# labeling axes
+barplot(table(my_mtcars$cyl), xlab = "Number of Cylinders", ylab = "Count")
+
+# run the line below if you have never installed ggplot2
+# install.packages("ggplot2")
+
+# run this line before using ggplot in each R session
+library(ggplot2)
+
+# default ggplot bar plot using geom_bar()
+ggplot(data = my_mtcars, aes(x = cyl)) + geom_bar(col="red")
+ggplot(data = my_mtcars, aes(x = cyl)) + geom_bar(col="red")
+
+
+# labeling the axes, changing the theme and font size
+ggplot(data = my_mtcars, aes(x = cyl)) + geom_bar(col="red") + 
+  theme_bw(base_size = 12) + xlab("Number of Cylinders") + ylab("Count")
+
+# using aes() in geom_bar to make a stacked bar plot
+ggplot(data = my_mtcars, aes(x = cyl)) + geom_bar(aes(fill = am)) + 
+  theme_bw(base_size = 14) + xlab("Number of Cylinders") + ylab("Count")
+
+# hist() is the base package way to make a histogram
+hist(my_mtcars$mpg, xlab = "Miles per gallon", ylab = "Count")
+
+# main sets the title
+hist(my_mtcars$mpg, xlab = "Miles per gallon", ylab = "Count", 
+     main = "MPG for Motor Trend Cars")
+
+# ggplot also has a histogram function
+ggplot(data = my_mtcars, aes(x = mpg)) + geom_histogram() + 
+  theme_bw(base_size = 14) + xlab("Miles per Gallon") + ylab("Count")
+
+# binwidth sets the width of the histogram bars, try changing this value
+ggplot(data = my_mtcars, aes(x = mpg)) + geom_histogram(binwidth = 5) + 
+  theme_bw(base_size = 14) + xlab("Miles per Gallon") + ylab("Count")
+
+ggplot(data = my_mtcars, aes(x = mpg)) + geom_histogram(binwidth = 5, color="red") + 
+  theme_bw(base_size = 14) + xlab("Miles per Gallon") + ylab("Count")
+
+# boxplot() is the base package function for box plots - note the syntax
+# with the ~
+boxplot(my_mtcars$hp ~ my_mtcars$cyl, xlab = "Number of Cylinders", ylab = "Horsepower")
+
+# ggplot also has a box plot function
+ggplot(data = my_mtcars, aes(x = cyl, y = hp)) + geom_boxplot(col="blue") + 
+  theme_bw(base_size = 16) + xlab("Number of Cylinders") + ylab("Horsepower")
+
+# to make a scatter plot or line plot in the base package, use plot
+plot(my_mtcars$wt, my_mtcars$mpg, xlab = "Weight of Car (1000 lbs)", 
+     ylab = "Miles per Gallon")
+
+# ggplot can make a scatter plot with geom_point
+ggplot(data = my_mtcars, aes(x = wt, y = mpg)) + geom_point() + 
+  theme_bw(base_size = 14) + xlab("Weight of Car (1000 lbs)") + ylab("Miles per Gallon")
+
+# the points can be colored or sized by any feature in the data
+ggplot(data = my_mtcars, aes(x = wt, y = mpg)) + 
+  geom_point(aes(colour = hp)) +
+  theme_bw(base_size = 16) +
+  xlab("Weight of Car (1000 lbs)") +
+  ylab("Miles per Gallon")
+
+ggplot(data = my_mtcars, aes(x = wt, y = mpg)) + 
+  geom_point(aes(colour = cyl)) +
+  theme_bw(base_size = 16) +
+  xlab("Weight of Car (1000 lbs)") +
+  ylab("Miles per Gallon")
+
+ggplot(data = my_mtcars, aes(x = wt, y = mpg)) + 
+  geom_point(aes(colour = cyl, size = hp)) +
+  theme_bw(base_size = 16) +
+  xlab("Weight of Car (1000 lbs)") +
+  ylab("Miles per Gallon")
+
+# the points can also be labeled, there are other libraries to help with overlap
+ggplot(data = my_mtcars, aes(x = wt, y = mpg, label = rownames(my_mtcars))) + 
+  geom_point(aes(colour = cyl, size = hp)) +
+  geom_text(aes(size = 100)) + theme_bw(base_size = 14) + 
+  xlab("Weight of Car (1000 lbs)") + ylab("Miles per Gallon")
+
+
+ggplot(data = my_mtcars, aes(x = wt, y = mpg)) + 
+  geom_point(aes(colour = cyl, size = hp)) +
+  xlab("Weight of Car (1000 lbs)") + ylab("Miles per Gallon")
+
+
+# Simple Linear Regression in R ####
+# lm() creates a linear model, note the ~ syntax: y ~ x
+# what is the relationship between car weight and mpg
+plot(my_mtcars$wt, my_mtcars$mpg, xlab = "Weight of Car (1000 lbs)", 
+     ylab = "Miles per Gallon")
+
+mtcars_fit <- lm(formula = mpg ~ wt, data = my_mtcars)
+
+# abline() draws the model on the data
+abline(mtcars_fit, col = "red")
+
+# summary of the model shows the output, containing information about
+# how well the model fits the data and more
+summary(mtcars_fit)
+
+mtcars_fit$model
+
+mtcars_fit$coefficients
+mtcars_fit$coefficients[1]
+mtcars_fit$coefficients[2]
+
+# Predicted mpg = intercept + slope*wt
+mpg_predicted <- mtcars_fit$coefficients[1] + mtcars$wt * mtcars_fit$coefficients[2]
+
+cbind(round(mpg_predicted,1), round(mtcars_fit$fitted.values,1))
+
+# can draw the linear model on top of the data with ggplot using geom_abline()
+ggplot(data = my_mtcars, aes(x = wt, y = mpg)) + geom_point() + 
+  theme_bw(base_size = 16) + xlab("Weight of Car (1000 lbs)") + ylab("Miles per Gallon") +
+  geom_abline(intercept = mtcars_fit$coefficients[1], 
+              slope = mtcars_fit$coefficients[2],
+              colour = "red")
+
+# the linear model can be used to predict mpg for cars of new weights, not included
+# in the model - a new set of data is defined below
+new_data <- data.frame(wt=c(4.5, 4.75, 5))
+
+# predict() returns the predictions
+predict(lm(formula = mpg ~ wt, data = my_mtcars), new_data)
+
+
+# END
+########################################################
+########################################################
+
+# Lab:
+# 1. Get the data "iris", explore and view the data:
+data(iris)
+?iris
+View(iris)
+
+# 2. Personalize data
+my_iris <- iris
+
+# 3. What dimensions is the my_iris data frame?
+
+
+# 4. look at the data types in my_iris
+str(my_iris)
+
+# 5. summary of the data frame
+
+
+# 6. Are there any categorical factors in the data?
+
+
+# 7. What species of iris have a maximum value and a minimum value  
+#    of Petal.Length.
+
+
+# 8. Calculate the mean and the median of Sepal.Widths for each 
+#    species of iris.
+
+
+# 9. Which species of iris has the largest variations in the values 
+#    of Sepal.Length (hint: Variations are represented by variance).
+
+
+# 10.  Use base R to create a histogram of Sepal.Length. Label the axes
+#     of your histogram.
+
+
+# 11. Use base R to create boxplots of Sepal.Lengths for each of the species. 
+
+
+# 12. Repeat questions 10 and 11 above by using the ggplot2 package.
+
+
+# 13. Use base R to Plot Petal.Width versus Petal.Length for all species.
+
+
+
+# 14. Fit a linear regression model to the above plot, and plot the 
+#     regression line in red color within the plot of #13 above.
+
+
+# 15. Get a summary of the regression model obtained above. Describe how
+#     strong the regression model is as a prediction tool.
+
+
+
+# 16. Repeat # 13 by using the ggplot2 package and plot the 
+#    regression line in the same plot.  
+
+
+
+# 17. Repeat the ggplot of number 16 above, but use colors to differentiate
+#     data across species.
+
+
+
+# 18. Explain whether Petal.Length and Petal.Width are good attributes
+#     to use for data classification based on species. Explain!
+
+
+
+# 19. Predict the values of Petal.Width for the following values of 
+#     Petal.Length: (5.9, 6.3, 4.5) rounded to one significant place
+#     after the decimal. 
